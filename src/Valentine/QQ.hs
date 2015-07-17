@@ -1,16 +1,14 @@
-module Shakespeare.Ophelia.QQ (
-  gertrude
-, module Shakespeare.Ophelia.Parser.VDOM.Types
-, module Shakespeare.Ophelia.Parser.VDOM.Live
+module Valentine.QQ (
+  valentine
 ) where
 
 import           Language.Haskell.TH
 import           Language.Haskell.TH.Quote
 
 
-import           Shakespeare.Ophelia.Parser
-import           Shakespeare.Ophelia.Parser.VDOM.Live
-import           Shakespeare.Ophelia.Parser.VDOM.Types
+import           Valentine.Parser
+import           Valentine.Parser.VDom.Live
+import           LiveVDom.Types
 
 
 import           Text.Trifecta.Result
@@ -27,8 +25,8 @@ import           Text.Trifecta.Result
 
 
 -- | Parser from string to LiveVDom
-liveGertrude :: String -> Q Exp
-liveGertrude s = do
+liveValentine :: String -> Q Exp
+liveValentine s = do
   rN <- parseStringTrees parsePLiveVDom s
   case rN of
     Success vn -> if length vn > 1
@@ -40,5 +38,5 @@ liveGertrude s = do
 
 -- | Quasiquoter used to parse HTML similar to hamlet
 -- but allow it to be rendered live
-gertrude :: QuasiQuoter
-gertrude = QuasiQuoter liveGertrude undefined undefined undefined
+valentine :: QuasiQuoter
+valentine = QuasiQuoter liveValentine undefined undefined undefined

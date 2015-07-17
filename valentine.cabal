@@ -1,0 +1,36 @@
+Name:                   valentine
+Version:                0.0.1
+Author:                 Scott <scottmurphy09@gmail.com>
+Maintainer:             Scott <scottmurphy09@gmail.com>
+License:                MIT
+License-File:           LICENSE
+-- Synopsis:               
+-- Description:            
+Cabal-Version:          >= 1.10
+Build-Type:             Simple
+
+Library
+  Default-Language:     Haskell2010
+  HS-Source-Dirs:       src
+  GHC-Options:          -Wall
+  Exposed-Modules:      Valentine
+                        Valentine.QQ
+                        Valentine.Parser
+                        Valentine.Parser.VDom
+                        Valentine.Parser.VDom.Live
+--  Other-Modules:        
+  Build-Depends:        base >= 4 && < 5
+                      , template-haskell
+                      , containers
+                      , text
+                      , safe
+                      , stm-notify
+                      , trifecta
+                      , parsers
+                      , haskell-src-meta
+                      , here
+                      , live-vdom
+
+Source-Repository head
+  Type:                 git
+--  Location:             

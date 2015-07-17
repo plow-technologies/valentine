@@ -2,7 +2,7 @@
 {-# LANGUAGE QuasiQuotes         #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Shakespeare.Ophelia.Parser (
+module Valentine.Parser (
   parseLineForest
 , ParsedTree(..)
 , fromTree

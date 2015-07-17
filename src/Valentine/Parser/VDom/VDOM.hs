@@ -1,12 +1,12 @@
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE QuasiQuotes       #-}
 
-module Shakespeare.Ophelia.Parser.VDOM where
+module Valentine.Parser.VDom where
 
 
 import           Prelude                    hiding (foldl)
 
-import           VDOM.Adapter
+import           LiveVDom.Adapter.Types
 
 import           Control.Applicative
 import qualified Data.Foldable              as F
@@ -19,7 +19,7 @@ import           Text.Parser.Token
 import           Text.Trifecta.Parser
 import           Text.Trifecta.Result
 
-import           Shakespeare.Ophelia.Parser
+import           Valentine.Parser
 
 
 -- | Parse a VNode string in the form of:

@@ -1,7 +1,7 @@
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE QuasiQuotes       #-}
 
-module Shakespeare.Ophelia.Parser.VDOM.Live where
+module Valentine.Parser.VDom.Live where
 
 
 import           Prelude                               hiding (foldl, foldr)
@@ -19,12 +19,12 @@ import           Text.Trifecta.Delta
 import           Text.Trifecta.Parser
 import           Text.Trifecta.Result
 
-import           Shakespeare.Ophelia.Parser.VDOM
-import           Shakespeare.Ophelia.Parser.VDOM.Types
+import           Valentine.Parser.VDom
+import           LiveVDom.Types
 
 import           Language.Haskell.TH
 
-import           Shakespeare.Ophelia.Parser
+import           Valentine.Parser
 
 import           Language.Haskell.Meta.Parse
 
