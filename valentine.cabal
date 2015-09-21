@@ -30,7 +30,29 @@ Library
                       , haskell-src-meta
                       , here
                       , live-vdom
+                      , vector < 0.11
 
+test-suite test
+  type:             exitcode-stdio-1.0
+  default-language: Haskell2010
+  ghc-options:      -Wall -threaded
+  hs-source-dirs:   test, src
+  main-is:          Main.hs
+  build-depends:    base
+                  , valentine
+                  , lens
+                  , template-haskell
+                  , containers
+                  , text
+                  , safe
+                  , stm-notify
+                  , trifecta
+                  , parsers
+                  , haskell-src-meta
+                  , here
+                  , live-vdom
+                  , vector < 0.11
+                      
 Source-Repository head
   Type:                 git
---  Location:             
+--  Location:

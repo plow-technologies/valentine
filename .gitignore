@@ -9,3 +9,5 @@ cabal-dev
 .cabal-sandbox/
 cabal.sandbox.config
 add.sh
+/test/Main.hs~
+/test/Valentine/ParserSpec.hs~
