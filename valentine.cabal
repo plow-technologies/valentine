@@ -21,6 +21,7 @@ Library
 --  Other-Modules:        
   Build-Depends:        base >= 4 && < 5
                       , template-haskell
+                      , ghcjs-base
                       , containers
                       , text
                       , safe
@@ -42,6 +43,7 @@ test-suite test
                   , valentine
                   , lens
                   , template-haskell
+                  , ghcjs-base
                   , containers
                   , text
                   , safe

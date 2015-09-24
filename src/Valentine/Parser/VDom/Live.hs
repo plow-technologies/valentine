@@ -1,5 +1,6 @@
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE QuasiQuotes       #-}
+{-# LANGUAGE OverloadedStrings #-}
 
 module Valentine.Parser.VDom.Live where
 
@@ -18,6 +19,7 @@ import           Text.Parser.Token
 import           Text.Trifecta.Delta
 import           Text.Trifecta.Parser
 import           Text.Trifecta.Result
+import           Data.Monoid ((<>))
 
 import           Valentine.Parser.VDom
 import           LiveVDom.Types
@@ -29,6 +31,10 @@ import           Valentine.Parser
 import           Language.Haskell.Meta.Parse
 
 import qualified Data.Sequence as S
+
+--ghcjs-base
+import           Data.JSString          (JSString)
+import qualified Data.JSString          as JS (pack, unpack)
 
 parseLiveDom :: (Applicative f, Monad f) => String -> f (Result [PLiveVDom])
 parseLiveDom = parseStringTrees parsePLiveVDom
@@ -98,7 +104,7 @@ parseLiveText = do
 parseStaticText :: (Monad m) => Parser ([PLiveVDom] -> m PLiveVDom)
 parseStaticText = do
   xs <- many anyChar
-  (return $ \vns -> foldlM addPVText (PLiveVText xs) vns) <?> "VText"
-  where addPVText (PLiveVText accum) (PLiveVText new) = return $ PLiveVText $ accum ++ "\n" ++ new
+  (return $ \vns -> foldlM addPVText (PLiveVText (JS.pack xs)) vns) <?> "VText"
+  where addPVText (PLiveVText accum) (PLiveVText new) = return $ PLiveVText $ accum <> "\n" <> new
         addPVText _ (PLiveVNode _ _ _) = fail [here| Unable to add node to text as a node|]
         addPVText _ _ = fail [i|Error, somehow parsed VNode instead of PLiveVText. Please report this as a bug|]
