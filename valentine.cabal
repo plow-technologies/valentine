@@ -31,7 +31,7 @@ Library
                       , haskell-src-meta
                       , here
                       , live-vdom
-                      , vector < 0.11
+                      , vector
 
 test-suite test
   type:             exitcode-stdio-1.0
@@ -53,7 +53,7 @@ test-suite test
                   , haskell-src-meta
                   , here
                   , live-vdom
-                  , vector < 0.11
+                  , vector
                       
 Source-Repository head
   Type:                 git

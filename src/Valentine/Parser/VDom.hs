@@ -65,6 +65,8 @@ parseVText = do
         addVText _ (VNode _ev tn props _ch) = fail [i| Unable to add node ${show tn ++ " " ++ show props} to text as a node|]
         addVText _ _ = fail [i|Error, somehow parsed VNode instead of VText. Please report this as a bug|]
 
+
+
 -- | Consumes leading spaces, the name of the property
 -- then equals, and then the JSProp
 parseAttribute :: Parser Property

@@ -40,7 +40,7 @@ parseLiveDom :: (Applicative f, Monad f) => String -> f (Result [PLiveVDom])
 parseLiveDom = parseStringTrees parsePLiveVDom
 
 parsePLiveVDom :: (Monad m, Functor m) => Parser ([PLiveVDom] -> m PLiveVDom)
-parsePLiveVDom = parseStaticNode <|> parseLiveVNode <|> parseMultipleLiveNodes <|> parseLiveText <|> parseStaticText
+parsePLiveVDom = parseStaticNode <|> parseLiveVNode <|> parseMultipleLiveNodes <|> parseLiveText <|> parseInterpStaticText <|> parseStaticVNode <|> parseStaticText
 
 
 parseStaticNode :: (Monad m) => Parser ([PLiveVDom] -> m PLiveVDom)
@@ -99,6 +99,27 @@ parseLiveText = do
     expr <- manyTill anyChar $ lookAhead $ char '}'
     let failOnNonempty [] = PLiveInterpText <$> buildF expr
         failOnNonempty _ = fail "Error. Live nodes are unable to have children"
+    return failOnNonempty
+
+
+parseInterpStaticText :: (Monad m, Functor m) => Parser ([PLiveVDom] -> m PLiveVDom)
+parseInterpStaticText = do
+  _ <- char '^'
+  braces $ do
+    expr <- manyTill anyChar $ lookAhead $ char '}'
+    let failOnNonempty [] = PStaticText <$> buildF expr
+        failOnNonempty _ = fail "Error. Live nodes are unable to have children"
+    return failOnNonempty
+
+
+
+parseStaticVNode :: (Monad m, Functor m) => Parser ([PLiveVDom] -> m PLiveVDom)
+parseStaticVNode = do
+  _ <- char '$'
+  braces $ do
+    expr <- manyTill anyChar $ lookAhead $ char '}'
+    let failOnNonempty [] = PStaticVNode <$> buildF expr
+        failOnNonempty _ = fail "Error. Static nodes are unable to have children"
     return failOnNonempty
 
 parseStaticText :: (Monad m) => Parser ([PLiveVDom] -> m PLiveVDom)
