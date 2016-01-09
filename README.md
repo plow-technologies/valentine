@@ -11,12 +11,7 @@ cabal build
 
 The valentine quasiquoter parsers a hamlet like HTML structure. In the quasiquoters there are expressions to parse different haskell expressions for LiveVDom, STMEnvelope LiveVDom, STMEnvelope (Seq LiveVDom), and
 
-
-PLiveChild - !
-PLiveCHildren - &
-PStaticText - ^
-PLiveText - #
-PStaticNode - $
+For examples of each of the interpolators, the quasiquoter, and the renderer, there is [an example todo-mvc](https://github.com/plow-technologies/live-vdom-todomvc).
 
 ## Expressions
 
