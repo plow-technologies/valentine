@@ -13,17 +13,6 @@ import           LiveVDom.Types
 
 import           Text.Trifecta.Result
 
--- opheliaExp :: String -> Q Exp
--- opheliaExp s = do
---   rN <- parseVNodeS s
---   case rN of
---     Success vn -> lift vn
---     Failure fString -> fail $ show fString
-
--- ophelia :: QuasiQuoter
--- ophelia = QuasiQuoter opheliaExp undefined undefined undefined
-
-
 -- | Parser from string to LiveVDom
 liveValentine :: String -> Q Exp
 liveValentine s = do
@@ -38,5 +27,6 @@ liveValentine s = do
 
 -- | Quasiquoter used to parse HTML similar to hamlet
 -- but allow it to be rendered live
+-- reference the README.md file in the repo for more information
 valentine :: QuasiQuoter
 valentine = QuasiQuoter liveValentine undefined undefined undefined
