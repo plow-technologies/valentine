@@ -6,9 +6,9 @@ import           Language.Haskell.TH
 import           Language.Haskell.TH.Quote
 
 
+import           LiveVDom.Types
 import           Valentine.Parser
 import           Valentine.Parser.VDom.Live
-import           LiveVDom.Types
 
 
 import           Text.Trifecta.Result
@@ -29,4 +29,4 @@ liveValentine s = do
 -- but allow it to be rendered live
 -- reference the README.md file in the repo for more information
 valentine :: QuasiQuoter
-valentine = QuasiQuoter liveValentine undefined undefined undefined
+valentine = QuasiQuoter liveValentine (error "quasi") (error "quasi") (error "quasi")
