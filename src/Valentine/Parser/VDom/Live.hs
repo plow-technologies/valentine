@@ -21,9 +21,11 @@ import           Text.Trifecta.Parser
 import           Text.Trifecta.Result
 import           Data.Monoid ((<>))
 
+
 import           Valentine.Parser.VDom
 import           LiveVDom.Types
-
+import           LiveVDom.Adapter.Types (Property(..),JSProp(..))
+import           Data.List (find)
 import           Language.Haskell.TH
 
 import           Valentine.Parser
@@ -47,7 +49,12 @@ parseStaticNode :: (Monad m) => Parser ([PLiveVDom] -> m PLiveVDom)
 parseStaticNode = angles $ do
   tagName <- parseTagName       -- Reuse the parsers in the static vdom file
   props <- many parseAttribute
-  (return $ \children -> return $ PLiveVNode tagName props children) <?> "LiveVNode"
+  (return $ \children -> return $ PLiveVNode tagName  (grabNamespace props) props children) <?> "LiveVNode"
+ where
+   grabNamespace :: [Property] ->  Maybe JSString
+   grabNamespace props = (jsStringFromProp. fmap propertyValue . find ((== "xmlns" ). propertyName ) ) props
+   jsStringFromProp (Just (JSPString str)) = Just str
+   jsStringFromProp _ = Nothing
 
 buildF :: (Monad m, Functor m) => String -> m Exp
 buildF str = case parseExp str of
@@ -127,5 +134,5 @@ parseStaticText = do
   xs <- many anyChar
   (return $ \vns -> foldlM addPVText (PLiveVText (JS.pack xs)) vns) <?> "VText"
   where addPVText (PLiveVText accum) (PLiveVText new) = return $ PLiveVText $ accum <> "\n" <> new
-        addPVText _ (PLiveVNode _ _ _) = fail [here| Unable to add node to text as a node|]
+        addPVText _ (PLiveVNode _ _ _ _) = fail [here| Unable to add node to text as a node|]
         addPVText _ _ = fail [i|Error, somehow parsed VNode instead of PLiveVText. Please report this as a bug|]
