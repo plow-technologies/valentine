@@ -30,7 +30,7 @@ Library
                       , parsers
                       , haskell-src-meta
                       , here
-                      , live-vdom
+                      , live-vdom >= 0.2.0
                       , vector
 
 test-suite test
