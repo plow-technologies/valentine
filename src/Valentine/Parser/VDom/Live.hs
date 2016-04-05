@@ -26,6 +26,7 @@ import           Valentine.Parser.VDom
 import           LiveVDom.Types
 import           LiveVDom.Adapter.Types (Property(..),JSProp(..))
 import           Data.List (find)
+import           Data.JSString (isInfixOf)
 import           Language.Haskell.TH
 
 import           Valentine.Parser
@@ -52,7 +53,7 @@ parseStaticNode = angles $ do
   (return $ \children -> return $ PLiveVNode tagName  (grabNamespace props) props children) <?> "LiveVNode"
  where
    grabNamespace :: [Property] ->  Maybe JSString
-   grabNamespace props = (jsStringFromProp. fmap propertyValue . find ((== "xmlns" ). propertyName ) ) props
+   grabNamespace props = (jsStringFromProp. fmap propertyValue . find ((isInfixOf "xmlns" ).  propertyName ) ) props
    jsStringFromProp (Just (JSPString str)) = Just str
    jsStringFromProp _ = Nothing
 
