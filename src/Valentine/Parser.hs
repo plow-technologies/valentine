@@ -30,7 +30,7 @@ import           Text.Trifecta.Result
 type PrepositionTree a = T.Tree (Int,a)
 newtype ParsedTree a = ParsedTree { unParsedTree :: [T.Tree a] } deriving (Eq, Show)
 
-
+data Spaces = OnlyWhiteSpace | SpaceCount Int
 
 -- | Because Result isn't an instance of monad but it's
 -- needed when you parse something tice
@@ -87,15 +87,27 @@ spacesCount = length <$> many (char ' ')
 
 -- | Return the number of spaces leading up to a given string
 -- "   a" -> (3,"a"), "abc" -> (0,"abc")
-parseLine :: Parser (Int,String)
+parseLine :: Parser (Spaces,String)
 parseLine = do
   whiteSpaceCount <- spacesCount
-  line <- manyTill anyChar eofNewLine
-  return (whiteSpaceCount, line)
+  emptyOrCount  <- (try (eofNewLine *>  pure OnlyWhiteSpace) ) <|> (pure $ SpaceCount whiteSpaceCount)
+  case emptyOrCount of
+     OnlyWhiteSpace -> pure (OnlyWhiteSpace, "")
+     _ -> do
+        line <- manyTill anyChar eofNewLine
+        return (emptyOrCount, line)
 
 -- | Parse a group of lines with their respective number of leading whitespaces
 parseLines :: Parser [(Int,String)]
-parseLines = manyTill parseLine eofNewLine
+parseLines = do
+     rslt <- manyTill parseLine eofNewLine
+     let strippedResult = foldr stripEmptyLines [] rslt
+     return strippedResult 
+   where
+     stripEmptyLines (lineCount, val) lst = case lineCount of
+                                                 OnlyWhiteSpace -> lst
+                                                 (SpaceCount spaceCountInt ) -> (spaceCountInt,val):lst
+
 
 -- | Make an empty prepositioned tree
 toPrepostionTree :: (Int,String) -> PrepositionTree String
