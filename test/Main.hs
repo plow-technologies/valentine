@@ -14,5 +14,5 @@ import Test.Tasty
 
 
 main :: IO ()
-main = runTest testParseStringTrees
+main = runTests testParseStringTrees
 
