@@ -41,6 +41,8 @@ test-suite test
   main-is:          Main.hs
   build-depends:    base
                   , valentine
+                  , tasty
+                  , tasty-hunit
                   , lens
                   , template-haskell
                   , ghcjs-base

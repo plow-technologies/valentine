@@ -3,6 +3,7 @@ module Main where
 import Valentine.ParserSpec
 import Data.Either (lefts)
 import Data.List (null)
+import Test.Tasty
 -- main :: IO ()
 -- main = if null allTestSuites
 --        then print ("All Tests Passed" :: String)
@@ -13,4 +14,5 @@ import Data.List (null)
 
 
 main :: IO ()
-main = return ()
+main = runTest testParseStringTrees
+
