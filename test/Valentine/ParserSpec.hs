@@ -5,7 +5,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module Valentine.ParserSpec where
-import Valentine.Parser (parseStringTrees, parseLineForest, ParsedTree(..))
+import Valentine.Parser (parseStringTrees, parseLineForest, ParsedTree(..),parseLines)
 import Valentine.Parser.VDom.Live (parseLiveDom,parsePLiveVDom)
 import qualified Data.Tree as Tree
 import Data.Monoid ((<>))
@@ -61,8 +61,8 @@ assertEqualIO  v1IO v2IO  = do
           return False
 
 
-testParseStringTrees = [makeTest "check for tree parser equality" $ assertEqualIO (testTreeparser quotedStringNoSpaces)
-                                                                                  (testTreeparser quotedStringSpacesAdded)
+testParseStringTrees = [makeTest "check for tree parser equality" $ assertEqualIO (testLineParser quotedStringNoSpaces)
+                                                                                  (testLineParser quotedStringSpacesAdded)
 
 --                      , makeTest "check for PLiveDom Equality" $    assertEqualIO (testParser quotedDomNoSpaces) (testParser multiDivNoWhiteSpace)
                        ,makeTest "check that quasi quotes produce right parse" $ assertEqual quotedDomNoSpaces quotedDomSpacesAdded]
@@ -150,5 +150,12 @@ testParser str = do
 testTreeparser :: String -> IO (ParsedTree String)
 testTreeparser str = do
    let (Success rslt) =  parseString parseLineForest (Columns 0 0) str
+   putStrLn . show $ rslt
+   return rslt
+
+
+testLineParser :: String -> IO ( [(Int,String)])
+testLineParser str = do
+   let (Success rslt) =  parseString parseLines (Columns 0 0) str
    putStrLn . show $ rslt
    return rslt

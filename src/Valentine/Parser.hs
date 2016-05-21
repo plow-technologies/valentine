@@ -4,6 +4,7 @@
 
 module Valentine.Parser (
   parseLineForest
+, parseLines  
 , ParsedTree(..)
 , fromTree
 , parseStringTrees
@@ -31,6 +32,7 @@ type PrepositionTree a = T.Tree (Int,a)
 newtype ParsedTree a = ParsedTree { unParsedTree :: [T.Tree a] } deriving (Eq, Show)
 
 data Spaces = OnlyWhiteSpace | SpaceCount Int
+   deriving (Show)
 
 -- | Because Result isn't an instance of monad but it's
 -- needed when you parse something tice
@@ -91,7 +93,7 @@ parseLine :: Parser (Spaces,String)
 parseLine = do
   whiteSpaceCount <- spacesCount
   emptyOrCount  <- (try (eofNewLine *>  pure OnlyWhiteSpace) ) <|>
-                  (pure $ SpaceCount whiteSpaceCount)
+                   (pure $ SpaceCount whiteSpaceCount)
   case emptyOrCount of
      OnlyWhiteSpace -> pure (OnlyWhiteSpace, "")
      _ -> do
@@ -101,12 +103,12 @@ parseLine = do
 -- | Parse a group of lines with their respective number of leading whitespaces
 parseLines :: Parser [(Int,String)]
 parseLines = do
-     rslt <- manyTill parseLine eofNewLine
-     let strippedResult = foldr stripEmptyLines [] rslt
+     rslt <- manyTill parseLine eof
+     let strippedResult = foldr stripEmptyLines  [] rslt
      return strippedResult 
    where
      stripEmptyLines (lineCount, val) lst = case lineCount of
-                                                 OnlyWhiteSpace -> lst
+                                                 OnlyWhiteSpace ->  lst
                                                  (SpaceCount spaceCountInt ) -> (spaceCountInt,val):lst
 
 
