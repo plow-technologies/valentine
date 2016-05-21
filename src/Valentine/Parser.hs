@@ -1,6 +1,8 @@
 {-# LANGUAGE NoImplicitPrelude   #-}
 {-# LANGUAGE QuasiQuotes         #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TupleSections #-}
+
 
 module Valentine.Parser (
   parseLineForest
@@ -20,7 +22,7 @@ import           Data.Foldable
 import qualified Data.Tree               as T
 import qualified Data.Traversable        as T
 
-
+import           Text.Parser.Token
 import           Text.Parser.Char
 import           Text.Parser.Combinators
 import           Text.Trifecta.Delta
@@ -89,27 +91,55 @@ spacesCount = length <$> many (char ' ')
 
 -- | Return the number of spaces leading up to a given string
 -- "   a" -> (3,"a"), "abc" -> (0,"abc")
-parseLine :: Parser (Spaces,String)
+parseLine :: Parser [(Int,String)]
 parseLine = do
   whiteSpaceCount <- spacesCount
-  emptyOrCount  <- (try (eofNewLine *>  pure OnlyWhiteSpace) ) <|>
-                   (pure $ SpaceCount whiteSpaceCount)
+  emptyOrCount  <- (try (eofNewLine *>  pure Nothing) ) <|>
+                   (pure $ Just whiteSpaceCount)
   case emptyOrCount of
-     OnlyWhiteSpace -> pure (OnlyWhiteSpace, "")
-     _ -> do
-        line <- manyTill anyChar eofNewLine
-        return (emptyOrCount, line)
+     Nothing -> pure []
+     (Just i) ->  transformTagLine i 
+
+
+-- | special case tag parser for transforming lines like <div> Test into:
+--    <div>
+--     test
+
+
 
 -- | Parse a group of lines with their respective number of leading whitespaces
 parseLines :: Parser [(Int,String)]
-parseLines = do
-     rslt <- manyTill parseLine eof
-     let strippedResult = foldr stripEmptyLines  [] rslt
-     return strippedResult 
-   where
-     stripEmptyLines (lineCount, val) lst = case lineCount of
-                                                 OnlyWhiteSpace ->  lst
-                                                 (SpaceCount spaceCountInt ) -> (spaceCountInt,val):lst
+parseLines = concat <$> (manyTill parseLine eof)
+
+
+
+-- | Turn a line with a tag on it into two lines 
+-- the second of which being indented by 1
+transformTagLine :: Int -> Parser [(Int,String)]
+transformTagLine i = tryTagSeparator
+  where
+         
+         tryTagSeparator = tagSeperator <|> anyCharFinish
+
+         
+         anyCharFinish = (manyTill dropSpaces eofNewLine ) >>= ignoreIfEmpty
+         dropSpaces = spaces *> anyChar
+         ignoreIfEmpty ""  = return []
+         ignoreIfEmpty str = return [(i,str)]
+
+
+         tagSeperator = do
+               tagPart <- parseWithAnglesIn
+               rest    <- transformTagLine (i + 1)
+               return $ (tagPart : rest)
+
+
+
+         parseWithAnglesIn = do
+            left <- try $ char '<'
+            rest <- manyTill anyChar (char '>')
+            return $ (i,left:rest ++ ">")
+
 
 
 -- | Make an empty prepositioned tree

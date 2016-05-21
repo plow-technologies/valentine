@@ -64,8 +64,15 @@ assertEqualIO  v1IO v2IO  = do
 testParseStringTrees = [makeTest "check for tree parser equality" $ assertEqualIO (testLineParser quotedStringNoSpaces)
                                                                                   (testLineParser quotedStringSpacesAdded)
 
---                      , makeTest "check for PLiveDom Equality" $    assertEqualIO (testParser quotedDomNoSpaces) (testParser multiDivNoWhiteSpace)
+                      , makeTest "check for line transforms on single line attributes" $    assertEqualIO (testLineParser quotedStringOneLine) (testLineParser quotedStringOneLineTransform)
                        ,makeTest "check that quasi quotes produce right parse" $ assertEqual quotedDomNoSpaces quotedDomSpacesAdded]
+
+
+
+
+--------------------------------------------------
+-- Quoted strings for testing
+--------------------------------------------------
 
 quotedDomNoSpaces = [testvalentine|
 <div>
@@ -101,6 +108,24 @@ quotedDomSpacesAdded = [testvalentine|
               Guffman
 |]
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+--------------------------------------------------
+-- Line Parser Tests
+--------------------------------------------------
 quotedStringNoSpaces = [here|
 <div>
   <section id="hello-app">
@@ -134,6 +159,65 @@ quotedStringSpacesAdded = [here|
            <div>
               Guffman
 |]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+--------------------------------------------------
+-- Text on a line, transformed into text line text
+--------------------------------------------------
+quotedStringOneLine = [here|
+<div>
+  <section id="hello-app">
+    <header id="header">
+           <div> Hello
+
+
+
+                 <div>
+
+
+
+                   pumpernell
+
+
+           <div>
+              Guffman
+|]
+
+quotedStringOneLineTransform = [here|
+<div>
+  <section id="hello-app">
+    <header id="header">
+           <div> 
+            Hello
+
+
+
+                 <div>
+
+
+
+                   pumpernell
+
+
+           <div>
+              Guffman
+|]
+
+
 
 
 
