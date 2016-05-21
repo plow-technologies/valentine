@@ -90,7 +90,8 @@ spacesCount = length <$> many (char ' ')
 parseLine :: Parser (Spaces,String)
 parseLine = do
   whiteSpaceCount <- spacesCount
-  emptyOrCount  <- (try (eofNewLine *>  pure OnlyWhiteSpace) ) <|> (pure $ SpaceCount whiteSpaceCount)
+  emptyOrCount  <- (try (eofNewLine *>  pure OnlyWhiteSpace) ) <|>
+                  (pure $ SpaceCount whiteSpaceCount)
   case emptyOrCount of
      OnlyWhiteSpace -> pure (OnlyWhiteSpace, "")
      _ -> do
@@ -112,6 +113,7 @@ parseLines = do
 -- | Make an empty prepositioned tree
 toPrepostionTree :: (Int,String) -> PrepositionTree String
 toPrepostionTree = flip T.Node []
+
 
 -- | Because of the foldl of the insert you have to reverse all of the children for a given  node
 reverseChildren :: PrepositionTree a -> PrepositionTree a

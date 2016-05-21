@@ -1,17 +1,29 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE QuasiQuotes #-}
+
+{-# LANGUAGE OverloadedStrings #-}
+
 module Valentine.ParserSpec where
-import Valentine.Parser (parseStringTrees)
-import Valentine.Parser.VDom.Live (parseLiveDom)
+import Valentine.Parser (parseStringTrees, parseLineForest, ParsedTree(..))
+import Valentine.Parser.VDom.Live (parseLiveDom,parsePLiveVDom)
 import qualified Data.Tree as Tree
 import Data.Monoid ((<>))
-import Control.Lens 
+import Control.Lens
+import Debug.Trace (traceShow)
 import           Text.Trifecta.Result
+import           Text.Trifecta.Parser
+import           Text.Trifecta.Delta
 import           LiveVDom.Adapter.Types
 import           LiveVDom.Types
 import Language.Haskell.TH (nameBase)
-
+import           Language.Haskell.TH
+import           Language.Haskell.TH.Quote
+import           Language.Haskell.TH.Syntax
+import Data.String.Here
 import Text.Trifecta.Parser 
+import Valentine.QQSpec
+
 
 
 type Test = (String, IO Bool)
@@ -25,7 +37,7 @@ runTests [] = return ()
 runTests (test:tests) = do
   (str, rslt) <- sequence test
   if rslt
-     then return ()
+     then runTests tests
      else fail str
 
 
@@ -38,44 +50,105 @@ assertEqual v1 v2
 
 
 
+assertEqualIO  v1IO v2IO  = do
+   v1 <- v1IO
+   v2 <- v2IO
+   case () of
+     _ 
+      |v1 == v2 -> return True
+      |otherwise -> do
+          putStrLn $ show v1  ++ (" does not equal ") ++  show v2
+          return False
 
 
-testParseStringTrees = [makeTest "check for parser equality"  $  assertEqual multiDivNoWhiteSpace multiDivWithWhiteSpace
-                       ,makeTest "check that it isn't nothing" $ not <$> assertEqual multiDivNoWhiteSpace Nothing]
-      where
-           makeSpace i = replicate i ' '
-           newline = "\n"
-           whiteSpace i = makeSpace i  <> newline
-           div = "<div>"
-           multiDivNoWhiteSpace   = testParser $ div <> newline <>
-                                                     makeSpace 5 <> "test" <> newline <>
-                                                         makeSpace 10 <> div <> newline <>
-                                                            makeSpace 15 <> "test" <> newline <>
-                                                         makeSpace 10 <> div <> newline <>
-                                                            makeSpace 15 <> "test" <> newline
+testParseStringTrees = [makeTest "check for tree parser equality" $ assertEqualIO (testTreeparser quotedStringNoSpaces)
+                                                                                  (testTreeparser quotedStringSpacesAdded)
 
+--                      , makeTest "check for PLiveDom Equality" $    assertEqualIO (testParser quotedDomNoSpaces) (testParser multiDivNoWhiteSpace)
+                       ,makeTest "check that quasi quotes produce right parse" $ assertEqual quotedDomNoSpaces quotedDomSpacesAdded]
 
-
-
-           multiDivWithWhiteSpace = testParser $ div <> newline <>
-                                                   makeSpace 5 <> "test" <> newline <>
-                                                        makeSpace 10 <> div <> newline <>
-                                                           whiteSpace 12 <>                                                
-                                                           whiteSpace 12 <>
-                                                              makeSpace 15 <> "test" <> newline <>
-                                                        makeSpace 10 <> div <> newline <>
-                                                           whiteSpace 12 <>                                                
-                                                           whiteSpace 12 <>
-                                                              makeSpace 15 <> "test" <> newline
-
-
+quotedDomNoSpaces = [testvalentine|
+<div>
+  <section id="hello-app">
+    <header id="header">
+           <div>
+                  Hello
+               <div>
+                 pumpernell
+           <div>
+              Guffman
+|]
 
 
 
+quotedDomSpacesAdded = [testvalentine|
+<div>
+  <section id="hello-app">
+    <header id="header">
+           <div>
+                  Hello
 
-testParser :: String -> Maybe ([PLiveVDom])
+
+
+               <div>
+
+
+
+                 pumpernell
+
+                 
+           <div>
+              Guffman
+|]
+
+quotedStringNoSpaces = [here|
+<div>
+  <section id="hello-app">
+    <header id="header">
+           <div>
+                  Hello
+               <div>
+                 pumpernell
+           <div>
+              Guffman
+|]
+
+
+
+quotedStringSpacesAdded = [here|
+<div>
+  <section id="hello-app">
+    <header id="header">
+           <div>
+                  Hello
+
+
+
+               <div>
+
+
+
+                 pumpernell
+
+
+           <div>
+              Guffman
+|]
+
+
+
+
+
+testParser :: String -> IO ([PLiveVDom])
 testParser str = do
   (Success rslt ) <-  parseLiveDom str
+  putStrLn . show $ rslt
   return rslt
 
 
+
+testTreeparser :: String -> IO (ParsedTree String)
+testTreeparser str = do
+   let (Success rslt) =  parseString parseLineForest (Columns 0 0) str
+   putStrLn . show $ rslt
+   return rslt

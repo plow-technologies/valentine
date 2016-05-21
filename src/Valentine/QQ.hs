@@ -6,9 +6,9 @@ import           Language.Haskell.TH
 import           Language.Haskell.TH.Quote
 
 
-import           LiveVDom.Types
-import           Valentine.Parser
-import           Valentine.Parser.VDom.Live
+import           LiveVDom.Types (toLiveVDomTH)
+import           Valentine.Parser (parseStringTrees)
+import           Valentine.Parser.VDom.Live (parsePLiveVDom)
 
 
 import           Text.Trifecta.Result

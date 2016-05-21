@@ -43,7 +43,13 @@ parseLiveDom :: (Applicative f, Monad f) => String -> f (Result [PLiveVDom])
 parseLiveDom = parseStringTrees parsePLiveVDom
 
 parsePLiveVDom :: (Monad m, Functor m) => Parser ([PLiveVDom] -> m PLiveVDom)
-parsePLiveVDom = parseStaticNode <|> parseLiveVNode <|> parseMultipleLiveNodes <|> parseLiveText <|> parseInterpStaticText <|> parseStaticVNode <|> parseStaticText
+parsePLiveVDom = parseStaticNode <|>
+                 parseLiveVNode <|>
+                 parseMultipleLiveNodes <|>
+                 parseLiveText <|>
+                 parseInterpStaticText <|>
+                 parseStaticVNode <|>
+                 parseStaticText
 
 
 parseStaticNode :: (Monad m) => Parser ([PLiveVDom] -> m PLiveVDom)
@@ -135,5 +141,5 @@ parseStaticText = do
   xs <- many anyChar
   (return $ \vns -> foldlM addPVText (PLiveVText (JS.pack xs)) vns) <?> "VText"
   where addPVText (PLiveVText accum) (PLiveVText new) = return $ PLiveVText $ accum <> "\n" <> new
-        addPVText _ (PLiveVNode _ _ _ _) = fail [here| Unable to add node to text as a node|]
+        addPVText xs (PLiveVNode _ _ _ _) = fail $ "unable to add text as a node: ("  ++ show xs ++ ")"
         addPVText _ _ = fail [i|Error, somehow parsed VNode instead of PLiveVText. Please report this as a bug|]
