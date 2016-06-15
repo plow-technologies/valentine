@@ -5,7 +5,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module Valentine.ParserSpec where
-import Valentine.Parser (parseStringTrees, parseLineForest, ParsedTree(..),parseLines)
+import Valentine.Parser (parseStringTrees, parseLineForest, ParsedTree(..),parseLines,parseLine)
 import Valentine.Parser.VDom.Live (parseLiveDom,parsePLiveVDom)
 import qualified Data.Tree as Tree
 import Data.Monoid ((<>))
@@ -14,6 +14,7 @@ import Debug.Trace (traceShow)
 import           Text.Trifecta.Result
 import           Text.Trifecta.Parser
 import           Text.Trifecta.Delta
+import Text.Parser.Combinators
 import           LiveVDom.Adapter.Types
 import           LiveVDom.Types
 import Language.Haskell.TH (nameBase)
@@ -50,6 +51,7 @@ assertEqual v1 v2
 
 
 
+assertEqualIO :: (Eq a, Show a) => IO a -> IO a -> IO Bool
 assertEqualIO  v1IO v2IO  = do
    v1 <- v1IO
    v2 <- v2IO
@@ -65,9 +67,20 @@ testParseStringTrees = [makeTest "check for tree parser equality" $ assertEqualI
                                                                                   (testLineParser quotedStringSpacesAdded)
 
                       , makeTest "check for line transforms on single line attributes" $    assertEqualIO (testLineParser quotedStringOneLine) (testLineParser quotedStringOneLineTransform)
-                       ,makeTest "check that quasi quotes produce right parse" $ assertEqual quotedDomNoSpaces quotedDomSpacesAdded]
+                       ,makeTest "check that quasi quotes produce right parse" $ assertEqual quotedDomNoSpaces quotedDomSpacesAdded
+                       ,makeTest "check parse string doesn't ogre the whitespace" $ assertEqual aParsedLineString aParsedLine]
 
 
+aParsedLineString = rslt
+   where
+     (Success rslt) = parseString parseLine (Columns 0 0) "    Here is a line"
+
+aParsedLine = [(4,"Here is a line")]
+
+
+aParsedMultiTagLineString = rslt
+   where
+     (Success rslt) = parseString parseLine (Columns 0 0) "    Here is a <new> line"              
 
 
 --------------------------------------------------
@@ -103,7 +116,7 @@ quotedDomSpacesAdded = [testvalentine|
 
                  pumpernell
 
-                 
+
            <div>
               Guffman
 |]

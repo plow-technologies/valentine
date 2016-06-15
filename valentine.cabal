@@ -30,6 +30,7 @@ Library
                       , parsers
                       , haskell-src-meta
                       , here
+                      , charset
                       , live-vdom >= 0.2.0
                       , vector
 
@@ -49,6 +50,7 @@ test-suite test
                   , containers
                   , text
                   , safe
+                  , charset
                   , stm-notify
                   , trifecta
                   , parsers

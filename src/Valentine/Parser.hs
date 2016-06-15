@@ -6,7 +6,8 @@
 
 module Valentine.Parser (
   parseLineForest
-, parseLines  
+, parseLines
+, parseLine
 , ParsedTree(..)
 , fromTree
 , parseStringTrees
@@ -24,11 +25,12 @@ import qualified Data.Traversable        as T
 
 import           Text.Parser.Token
 import           Text.Parser.Char
+import           Data.Char (isSpace)
 import           Text.Parser.Combinators
 import           Text.Trifecta.Delta
 import           Text.Trifecta.Parser
 import           Text.Trifecta.Result
-
+import           Data.CharSet (build)
 
 type PrepositionTree a = T.Tree (Int,a)
 newtype ParsedTree a = ParsedTree { unParsedTree :: [T.Tree a] } deriving (Eq, Show)
@@ -116,29 +118,36 @@ parseLines = concat <$> (manyTill parseLine eof)
 -- | Turn a line with a tag on it into two lines 
 -- the second of which being indented by 1
 transformTagLine :: Int -> Parser [(Int,String)]
-transformTagLine i = tryTagSeparator
-  where
-         
-         tryTagSeparator = tagSeperator <|> anyCharFinish
-
-         
-         anyCharFinish = (manyTill dropSpaces eofNewLine ) >>= ignoreIfEmpty
-         dropSpaces = spaces *> anyChar
-         ignoreIfEmpty ""  = return []
-         ignoreIfEmpty str = return [(i,str)]
+transformTagLine i = tryTagSeparator i
 
 
-         tagSeperator = do
-               tagPart <- parseWithAnglesIn
-               rest    <- transformTagLine (i + 1)
-               return $ (tagPart : rest)
+tryTagSeparator i = tagSeperator i <|> anyCharFinish i
+
+
+anyCharFinish :: Int -> Parser [(Int, [Char])]
+anyCharFinish i = (manyTill oneSpaceExactly eofNewLine ) >>= ignoreIfEmpty i
+
+ignoreIfEmpty i ""  = return []
+ignoreIfEmpty i str = return [(i,str)]
 
 
 
-         parseWithAnglesIn = do
-            left <- try $ char '<'
-            rest <- manyTill anyChar (char '>')
-            return $ (i,left:rest ++ ">")
+oneSpaceExactly :: Parser Char
+oneSpaceExactly = (noneOfSet (build isSpace)) <|> (some space *> pure ' ')
+
+tagSeperator :: Int -> Parser [(Int, [Char])]
+tagSeperator i = do
+      tagPart <- parseWithAnglesIn i
+      rest    <- transformTagLine (i + 1)
+      return $ (tagPart : rest)
+
+
+
+parseWithAnglesIn :: Int -> Parser (Int, [Char])
+parseWithAnglesIn  i = do
+   left <- try $ char '<'
+   rest <- manyTill anyChar (char '>')
+   return $ (i,left:rest ++ ">")
 
 
 
