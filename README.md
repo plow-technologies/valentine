@@ -61,7 +61,7 @@ This works the same as a LiveVDom expression but works on a JSString instead of 
 
 ```haskell
 displayChangingJSString :: STMEnvelope JSString -> LiveVDom
-displayChangingJSString changingString = [valenting|
+displayChangingJSString changingString = [valentine|
 <div>
     A changing string
     #{changingString}
@@ -74,7 +74,7 @@ To parse an expression with a static JSString there is a ^{} expression.
 
 ```haskell
 displayStaticString :: JSString -> LiveVDom
-displayStaticString staticString = [valenting|
+displayStaticString staticString = [valentine|
 <div>
     Static string
     ^{staticString}
