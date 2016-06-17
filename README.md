@@ -104,7 +104,8 @@ Three things are required:
  - a `STMMailbox (S.Seq a)` which is collection/sequence/list of elements which may change
  - `&{forEach seq seqItemFunction}`
  - `seqItemFunction :: a -> (Maybe a -> Message ()) -> LiveVDom`
-```
+
+```haskell
 data Foo = Foo {
   x :: Int
 , y :: JSString
@@ -135,7 +136,8 @@ Three things are required:
  - a `STMMailbox (S.Seq a)` which is collection/sequence/list of elements which may change
  - `!{withMailbox seq seqFunction}`
  - `seqFunction :: (S.Seq a) -> (S.Seq a -> Message ()) -> LiveVDom`
-```
+
+```haskell
 import Data.JSString (pack)
 
 data Foo = Foo {
