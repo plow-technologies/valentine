@@ -6,7 +6,7 @@ import           Language.Haskell.TH
 import           Language.Haskell.TH.Quote
 
 
-import           LiveVDom.Types (toLiveVDomTH)
+import           LiveVDom.TH (toLiveVDomTH)
 import           Valentine.Parser (parseStringTrees)
 import           Valentine.Parser.VDom.Live (parsePLiveVDom)
 
