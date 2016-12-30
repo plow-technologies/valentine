@@ -9,23 +9,23 @@ cabal build
 
 # Use
 
-The valentine quasiquoter parsers a hamlet like HTML structure. In the quasiquoters there are expressions to parse different haskell expressions for LiveVDom, STMEnvelope LiveVDom, STMEnvelope (Seq LiveVDom), and
+The valentine quasiquoter parsers a hamlet like HTML structure. There is a single interpolater for haskell expressions that works on the ToDesc typeclass.
 
 For examples of each of the interpolators, the quasiquoter, and the renderer, there is [an example todo-mvc](https://github.com/plow-technologies/live-vdom-todomvc).
 
 ## Expressions
 
-All examples assume you have a function displayInt. This uses the `^{}` interpolator for static text. The valentine parser is based of indentation and uses no closing tags. All of the expressions are ran through haskell-src-meta so the expression results should be accurate and support most expressions.
+All examples assume you have a function displayInt. This uses the interpolator for static text. The valentine parser is based of indentation and uses no closing tags. All of the expressions are ran through haskell-src-meta so the expression results should be accurate and support most expressions.
 
 ```haskell
 import Data.JSString (pack)
 import Valentine
-import LiveVDom
+import Desc Identity ()
 
-displayInt :: Int -> LiveVDom
+displayInt :: Int -> Desc Identity ()
 displayInt i = [valentine|
 <p>
-    ^{pack $ show x}
+    ${pack $ show x}
 |]
 ```
 
@@ -37,16 +37,16 @@ displayInt i = [valentine|
 ```
 
 
-### STMEnvelope LiveVDom Expression
+### STMEnvelope (Desc m ()) Expression
 
-To parse a haskell expression of LiveVDom you use the `!{}` interpolator. Using displayInt you can make the value update.
+To parse a haskell expression of Desc Identity () you use the interpolator again. Using displayInt you can make the value update.
 
 ```haskell
-displayChangingInt :: STMEnvelope Int -> LiveVDom
+displayChangingInt :: STMEnvelope Int -> Desc Identity ()
 displayChangingInt x = [valentine|
 <div>
     A changing int
-    !{displayInt <$> x}
+    ${displayInt <$> x}
 |]
 ```
 
@@ -57,14 +57,14 @@ This can be use a static expression with a live value through the functor and ap
 
 ### STMEnvelope JSString Expression
 
-`#{}` works the same as a LiveVDom expression but works on a JSString instead of LiveVDom
+The interpolator works the same as a Desc Identity () expression but works on a JSString instead of Desc Identity ()
 
 ```haskell
-displayChangingJSString :: STMEnvelope JSString -> LiveVDom
+displayChangingJSString :: STMEnvelope JSString -> Desc Identity ()
 displayChangingJSString changingString = [valentine|
 <div>
     A changing string
-    #{changingString}
+    ${changingString}
 |]
 ```
 
@@ -73,7 +73,7 @@ displayChangingJSString changingString = [valentine|
 To parse an expression with a static JSString there is a `^{}` expression.
 
 ```haskell
-displayStaticString :: JSString -> LiveVDom
+displayStaticString :: JSString -> Desc Identity ()
 displayStaticString staticString = [valentine|
 <div>
     Static string
@@ -81,17 +81,17 @@ displayStaticString staticString = [valentine|
 |]
 ```
 
-### Embedded Static LiveVDom
+### Embedded Static Desc Identity ()
 
-Use `${}` to parse LiveVDom which does not have an STMEnvelope as a parameter.
+Use the interpolator to parse Desc Identity () which does not have an STMEnvelope as a parameter.
 ```haskell
-x :: LiveVDom
+x :: Desc Identity ()
 x = [valetine|
 <div>
   ${y}
 |]
 
-y :: LiveVDom
+y :: Desc Identity ()
 y = [valentine|
 <div>
   Hello World!
@@ -103,7 +103,7 @@ y = [valentine|
 Three things are required: 
  - a `STMMailbox (S.Seq a)` which is collection/sequence/list of elements which may change
  - `&{forEach seq seqItemFunction}`
- - `seqItemFunction :: a -> (Maybe a -> Message ()) -> LiveVDom`
+ - `seqItemFunction :: a -> (Maybe a -> Message ()) -> Desc Identity ()`
 
 ```haskell
 data Foo = Foo {
@@ -111,7 +111,7 @@ data Foo = Foo {
 , y :: JSString
 }
 
-displayFoos :: STMMailbox (S.Seq Foo) -> LiveVDom
+displayFoos :: STMMailbox (S.Seq Foo) -> Desc Identity ()
 displayFoos fooMb = [valentine|
 <div>
   Foos:
@@ -119,14 +119,14 @@ displayFoos fooMb = [valentine|
 |]
 
 -- pay attention to the type signature
--- refer to forEach in LiveVDom
-displayFoo :: Foo -> (Maybe Foo -> Message ()) -> LiveVDom
+-- refer to forEach in Desc Identity ()
+displayFoo :: Foo -> (Maybe Foo -> Message ()) -> Desc Identity ()
 displayFoo foo _ = [valentine|
 <div>
   <span>
-    ^{show $ x foo}
+    ${show $ x foo}
   <span>
-    ^{y foo}
+    ${y foo}
 |]
 ```
 
@@ -135,7 +135,7 @@ displayFoo foo _ = [valentine|
 Three things are required: 
  - a `STMMailbox (S.Seq a)` which is collection/sequence/list of elements which may change
  - `!{withMailbox seq seqFunction}`
- - `seqFunction :: (S.Seq a) -> (S.Seq a -> Message ()) -> LiveVDom`
+ - `seqFunction :: (S.Seq a) -> (S.Seq a -> Message ()) -> Desc Identity ()`
 
 ```haskell
 import Data.JSString (pack)
@@ -145,19 +145,19 @@ data Foo = Foo {
 , y :: JSString
 }
 
-displayFoos :: STMMailbox (S.Seq Foo) -> LiveVDom
+displayFoos :: STMMailbox (S.Seq Foo) -> Desc Identity ()
 displayFoos fooMb = [valentine|
 <div>
   Number of Foos:
-  !{withMailbox fooMb getSize}
+  ${withMailbox fooMb getSize}
 |]
 
 -- pay attention to the type signature
--- refer to forEach in LiveVDom
-getSize :: (S.Seq Foo) -> (S.Seq Foo -> Message ()) -> LiveVDom
+-- refer to forEach in Desc Identity ()
+getSize :: (S.Seq Foo) -> (S.Seq Foo -> Message ()) -> Desc Identity ()
 getSize foos _ = [valentine|
 <div>
-  ^{pack $ show $ S.length foos}
+  ${pack $ show $ S.length foos}
 |]
 ```
 
